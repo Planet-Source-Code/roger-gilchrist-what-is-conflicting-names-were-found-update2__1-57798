@@ -1,0 +1,121 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>What is 'Conflicting names were found</TITLE>
+</HEAD>
+<BODY>
+
+<FONT SIZE=2>
+</FONT><B><FONT SIZE=4><P>What is 'Conflicting names were found...'
+</FONT><FONT SIZE=2>
+<br> and other <a href="#NPROG">NotePad Programming</a>
+
+
+<P>THE PROBLEM
+
+</B>
+<P><IMG SRC="Image1.jpg">
+<P>An occasional irritation when downloading is a messagebox like this when loading a project.
+<br>This can be very irritating because it is difficult to track down and repair. Because it is caused by a casing problem VB cannot resolve it.
+<P><i><b>NOTE</b> The project junk.vbp is provided with the bug in place for you to play with after you have read this article.</i>
+<P> Thanks to Kevin for finding a 4th place where VB can get the name of a file and generate this error. I have added this to the comments below.
+<B>
+<P>THE EXPLANATION</b><br>
+
+<u>The official one from VB help</u> (Click 'Help' button).<br>
+<hr>
+<b>Conflicting names were found in 'item1'.  The name 'item2' will be used</b>
+<p>
+
+The name of a form occurs twice in the source file for a Form, User Control, Property Page, or User Document. The names are different ,so the specified name will be used. This error can occur if the file was modified by an editor other than Visual Basic.
+<hr>
+<p>Helpful,eh? ;)
+<p><u><b>My explanation</u></b><br>
+<i>All references to 'Form' in this also apply to User Control, Property Page and User Document.</i>
+<br><i>All references to 'FRM' in this also apply to CTL, PAG and DOB.</i>
+
+</B><P>VB appears to use 2 names for each Form displayed in the Project window as 
+<P><b><i>FormName</i>(<i>FileName</i>.frm)</b>
+<P><i>FormName</i> is the name you use in code 
+<br><i>FileName</i> is the file in the project folder (well almost)
+<P>If you accept the defaults (bad idea) you get <b>Form1(Form1.frm)</b>, <b>Form2(Form2.frm)</b>, etc
+
+<P>The tricky bit is that there are actually 4 names involved;
+<br>1. <i>FormName</i> Stored in the FRM file in the line <b>'Attribute VB_Name =<i>FormName</i>'</b>
+<br>2. <i>FileName(Displayed)</i> in VB Project Window and 
+<br>3. <i>FileName(Folder)</i>  real name as it appears in Windows Explorer.
+<br>4. <i>FormName(Begin)</i> (Kevin's bug) At the top of the hidden text in FRM files is the line <b>Begin VB.Form <i>FormName</i> </b>. If this doesn't match the case of <i>FormName</i> you get the messagebox again.  I think the only way to trigger this is to edit the FRM text directly but let me know if you find a way to get it out of sync using (or mis-using) VB directly.
+<P>The Conflicting names problem occurs if <i>FormName</i> is the same spelling as <i>FileName(Folder)</i> and you change the case of <i>FileName(Folder)</i> in Windows Explorer. You might do this intending to give a consistent appearance to file names or because you started with default names and wanted to use more useful names. <i>(see <a href="#AVOID">AVOIDING IT IN THE FUTURE</a> for the official way to do it)</i>
+
+<P>VB gets the <i>FileName(Displayed)</i> from the VBP file.  <br>
+It is stored in a line like <b>Form=FrmAbout.frm</b> <i>(Open a VBP file in NotePad to see this. <a href="#NPROG">See NotePad Programming 1st</a>)</i>
+<br>The <i>FileName(Displayed)</i> uses the case from this line.
+<P>But <i>FileName(Folder)</i> need not have the same case because Windows is not case sensitive when it comes to loading files .
+<br>So if <i>FileName(Folder)</i> is  <b>FrmAbout.frm</b> then acceptable VBP file lines are <b>Form=FrmAbout.frm</b> or <b>Form=FRMABOUT.FRM</b> or <b>Form=fRmAbOuT.fRm</b> or any other case shift you like.
+
+<P>Unfortunately this can disguise the fact that the case of the real <i>FileName(Folder)</i> and the <i>FormName</i> don't match.
+
+<P>The <i>FormName</i> is stored inside the FRM file on the line <b>'Attribute VB_Name =frmabout.frm'</b> 
+<br><i>(Open a FRM file in NotePad to see the hidden text in forms. <a href="#NPROG">See NotePad Programming 1st</a>)</i>
+
+<P>If the spelling is the same but the cases don't match then the error message occurs.
+
+<B><P>THE FIX
+</B><P>To fix it open the FRM file in NotePad (<a href="#NPROG">See NotePad Programming 1st</a>) and change the FormName to match the <i>FileName(Folder)</i>. OR vice versa but as you'll have to open the file to find the correct casing you may as well edit the <i>FormName</i>
+
+<P>&nbsp;
+<B><P><a name="AVOID">AVOIDING IT IN THE FUTURE</a>
+</B>
+<br>1, As soon as you create a new Form open the Properties Window (F4) and enter the name you want in code. 
+<br>2. VB will then use the same name for <i>FormName</i> and <i>FileName</i>.
+<br>3. You can change both names freely as long as the Form has not been saved simply by using the Properties Window.
+
+<P><b>Once it is saved</b>
+<P>1 To change the <i>FormName</i> use the Properties Window. 
+<br>               <i><b>NOTE </b>This is not a good idea once you have started coding because you will then have to find all code references to the old <i>FormName</i> and update them by hand. Use Run with full compile (Ctrl+F5) to run code and VB will take you straight to any instances of the old name. 
+<br>You can limit this problem by only calling a form from its own module and using the <b>'Me'</b> keyword. Then you only need to adjust the <b>Load Form</b> or <b>Form.Show</b> commands on other forms. </i>
+<P>2 To change the <i>FileName(Folder)</i> use the menu <b> File|Save &lt;fileName&gt; As...' </b>
+<br>             <i><b>NOTE</b> this will leave the old file in the folder and create a new file. Don't forget to delete the old one.</i>
+
+<hr>
+<P><a name="NPROG"><b><u>NotePad Programming</u></b></a>
+<br>Programming with NotePad has at least 2 restrictions;
+<br><b>1.</b> Be careful; you lose all VB's hand-holding, error detection. This is especially true if you edit the hidden data in FRM files. See <i>FormName(Begin)</i> (Kevin's bug)  above for an example.  Until you feel very confident use a copy of the original project. 
+<p><b>2.</b> Never edit a file that is currently loaded into VB. 
+<br>   <b>a.</b> VB wont know you edited it until you reload.
+<br>   <b>b.</b> If you save the files from VB they will overwrite with the data loaded into memory and you'll lose any NotePad edits.
+<p><b>So why would you do it?</b>
+<p><b>1. Moving Files</b> 
+<br>If you program using standard service modules that you keep in folders remote from the project's main folder you might want to move the file to the project folder for zipping/uploading. Either place the file directly in the project folder or in a sub-folder of the project folder (you are less likely to forget to include these file in your zip files).
+<P><b>a.</b> You should do this using the menu <b>File|Save &lt;fileName&gt; As...' </b> but that can be very slow if you have a lot of files to move (you have to navigate from the original folder to the project folder for each file in turn). The advantage is that VB automatically updates the VBP file. 
+<br><b>b.</b> A faster (and riskier) way is to use the Windows Explorer and<b> Copy </b>(don't Move) the files. But the VBP file won't know about the copied files. So you have to open it in NotePad and edit the paths directly.
+<BR> This introduces some problems, different files are stored differently in the VBP file.
+<br>Forms (and other Control bearing objects) use the format <b>Form=[Path]&lt;FileName&gt;.frm </b>
+<br>Modules (and other Code only modules) use the format  <b>Module=&lt;ModuleName&gt;;[Path]&lt;FileName&gt;.bas</b>
+<br><i>The first word describes the sub-branch of the the project that will contain the file in the Project window</i> 
+<br><i><b>&lt;ModuleName&gt;</b> is the name used in code to refer to procedures/variables in the file. Forms store it internally and this leads to the problem described above. Bas and Class files also store it internally but it doesn't seem to lead to the same problem.</i>
+<br> <b>[Path]</b> is optional;
+<br><i>No Path:</i>  <b>Module=basMain;basMain.bas</b>  In the same folder as the VBP file.
+<br><i>Simple Path:</i> <b>Module=basMain;Modules\basMain.bas</b>  In a sub-folder of the VBP's folder.
+<br><i>Complex Path 1:</i> <b>Module=basMain; ..\basMain.bas</b> In a folder above the VBP's folder but on the same branch of the folder tree. The number of <b>..\</b> tells you how far up the branch it is.
+ <br><i>Complex Path 2:</i> <b>Module=basMain; ..\..\..\Program Files\Microsoft Visual Studio\VB98\SillyLocation\basMain.bas</b> In a different branch of the folder tree. The number of <b>..\</b> tells VB how far up the folder tree to find the specified branch.  
+ <p>To edit the path after moving the file change the path to which ever is correct (probably No or Simple Path) 
+ <p>
+<br><b>c.</b> The best policy is to always use the menu <b> File|Save &lt;fileName&gt; As...' </b> as soon as you load an existing module. Even if it is a well constructed and trusted module you may need to tweak it for the purposes of the current project. Using the same file in several projects could lead to nasty surprises if a tweak interferes with other projects.
+<br> On the other hand if you actually improve the module don't forget to copy it back to the storage folder you were using (After testing any other projects that use it)
+  
+<p><b>2. Fixing DownLoads</b>
+<br><b>a.</b> If you download code that has all the files but hasn't had its VBP file edited properly then you can use this to include the files that VB reports as missing when you try to load it. Of course you can simply use the menu <b>Project/Add Files(Ctrl+D)</b> to re-introduce the VBP file to the files but if there are several files this can be irritating. There is also the possibility that the files are not present because they were never zipped. Editing the VBP file lets you check that the files exist quickly by just looking in the Windows Explorer while editing.
+<p><b>b.</b> You can also use this to remove unnecessary References (carefully). Some code may contain references to ocx that are not on your system but were part of the Coder's Component/Tool Window. This can be very irritating. VB will remove these references, but only if you continue to load the project and then run and save it. But unless you know about this problem you are likely to stop loading and close VB without trying the code. 
+<br><i><b>NOTE</b> You can stop it happening in your own code very easily. 
+<br>Open menu <b>Project/<ProjectName>Properties...</b>. Go to the <b>Make</b> Tab and check the <b>Remove information about unused ActiveX Controls</b></i>  
+
+<p><b>3. Over-The-Top editing (SHOW-OFFS and EXPERTS ONLY)</b>
+<br><b>ALWAYS</b> use a backup copy when doing this.
+<br>Once you have studied the contents of FRM files you will realise that it is technically possible to change the appearance of a form by editing in NotePad.
+<br>I can only think of one reason to try this, removing all references to an ActiveX control and replacing it with a standard one( E.G. fancy buttons that replace CommandButton). However this can be very tricky and I wouldn't really recommend it except in very small forms. 
+<br><i>NOTE the new control <b>MUST</b> to be one of the standard controls that appear in the Component/Tool window when you load a standard.exe project. Only these controls can appear in a project without an explicit reference in the VBP file</i> 
+
+</FONT></BODY>
+</HTML>
